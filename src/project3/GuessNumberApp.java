@@ -13,6 +13,7 @@ public class GuessNumberApp extends JFrame implements ActionListener {
     JLabel labelAttempts = new JLabel("Попыток: 0");
     JTextField inputField = new JTextField(10);
     JButton btnCheck = new JButton("Проверить");
+    JButton btnRestart = new JButton("Новая игра");
 
     int targetNumber;
     int count = 0;
@@ -20,10 +21,10 @@ public class GuessNumberApp extends JFrame implements ActionListener {
 
     public GuessNumberApp() {
         setTitle("Угадай число");
-        setSize(350, 200);
+        setSize(350, 230); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(5, 1));
+        setLayout(new GridLayout(6, 1));
 
         JPanel inputPanel = new JPanel();
         inputPanel.add(inputField);
@@ -33,25 +34,55 @@ public class GuessNumberApp extends JFrame implements ActionListener {
         add(inputPanel);
         add(labelStatus);
         add(labelAttempts);
+        add(btnRestart);
 
         btnCheck.addActionListener(this);
+        btnRestart.addActionListener(this); 
+
+        btnRestart.setVisible(false);
+
         targetNumber = rand.nextInt(100) + 1;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String text = inputField.getText();
-        int userNum = Integer.parseInt(text);
+        if (e.getSource() == btnRestart) {
+            targetNumber = rand.nextInt(100) + 1;
+            count = 0;
+            labelAttempts.setText("Попыток: 0");
+            labelStatus.setText("Введите число и нажмите кнопку.");
+            inputField.setText("");
+            inputField.setEnabled(true);
+            btnCheck.setEnabled(true);
+            btnRestart.setVisible(false);
+            return;
+        }
 
-        count++;
-        labelAttempts.setText("Попыток: " + count);
+        try {
+            String text = inputField.getText();
+            int userNum = Integer.parseInt(text);
 
-        if (userNum == targetNumber) {
-            labelStatus.setText("Вы угадали! Это число " + targetNumber);
-        } else if (userNum < targetNumber) {
-            labelStatus.setText("Мало! Загаданное число больше.");
-        } else {
-            labelStatus.setText("Много! Загаданное число меньше.");
+            if (userNum < 1 || userNum > 100) {
+                labelStatus.setText("Введите число строго от 1 до 100!");
+                return;
+            }
+
+            count++;
+            labelAttempts.setText("Попыток: " + count);
+
+            if (userNum == targetNumber) {
+                labelStatus.setText("Вы угадали! Это было число " + targetNumber);
+                inputField.setEnabled(false); 
+                btnCheck.setEnabled(false); 
+                btnRestart.setVisible(true); 
+            } else if (userNum < targetNumber) {
+                labelStatus.setText("Мало! Загаданное число больше.");
+            } else {
+                labelStatus.setText("Много! Загаданное число меньше.");
+            }
+
+        } catch (NumberFormatException ex) {
+            labelStatus.setText("Ошибка! Нужно ввести именно число.");
         }
     }
 
